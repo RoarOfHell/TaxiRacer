@@ -134,6 +134,8 @@ public class Phone : MonoBehaviour
 
     }
 
+    
+
     IEnumerator PlayAnimationAccept()
     {
         GameObject.Find("Phone").GetComponent<Animator>().Play("PhoneHide");

@@ -222,4 +222,14 @@ public class CarController : MonoBehaviour
     {
         return Vector3.Distance(client.transform.position, transform.position);
     }
+
+    public void LoadSavedMoney(int value)
+    {
+        money = value;
+    }
+
+    public int GetMoney()
+    {
+        return money;
+    }
 }
