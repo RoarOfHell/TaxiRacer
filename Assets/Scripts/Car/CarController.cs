@@ -13,13 +13,15 @@ public class CarController : MonoBehaviour
     public float speed = 5;
     public float turnSpeed = 50;
     public float maxSpeed =4;
+    public bool isClientMove = false;
     private bool isStop = false;
     private int money = 0;
 
 
     [SerializeField] private List<GameObject> _stopLamp;
+    [SerializeField] private List<GameObject> _Lamps;
 
-    [SerializeField] private Image _arrowSpeedometr;
+    [SerializeField] private TextMeshProUGUI _textSpeedometr;
     [SerializeField] private TextMeshProUGUI _moneyText;
 
 
@@ -27,12 +29,21 @@ public class CarController : MonoBehaviour
     public GameObject endPointSelected;
     public GameObject currentPointSelected;
     public bool isArrival = false;
-    
+
+    private DayNight dayNight;
+    private FixedJoystick fixedJoystick;
 
     private void Start()
     {
         rb = GetComponent<Rigidbody2D>();
-        
+        if (GameObject.Find("TimeDayChange"))
+        {
+            dayNight = GameObject.Find("TimeDayChange").GetComponent<DayNight>();
+        }
+        if (GameObject.Find("FixedJoystick"))
+        {
+            fixedJoystick = GameObject.Find("FixedJoystick").GetComponent<FixedJoystick>();
+        }
     }
 
     private void Update()
@@ -41,6 +52,19 @@ public class CarController : MonoBehaviour
         StopLamp();
         StopCar();
         _moneyText.text = $"Баланс: {money}$";
+        OnOffLamp();
+        if (isClientMove)
+        {
+            startPointSelected.GetComponent<PointController>().ShowClient();
+            startPointSelected.GetComponent<PointController>().characterRender.transform.position = ClientMoveToCar(startPointSelected.GetComponent<PointController>().characterRender);
+            if (DistanceClientToCar(startPointSelected.GetComponent<PointController>().characterRender) <= 1)
+            {
+                startPointSelected.GetComponent<PointController>().HideClient();
+                startPointSelected.GetComponent<PointController>().characterRender.transform.position = startPointSelected.transform.position;
+                isClientMove = false;
+            }
+        }
+
     }
 
     private void FixedUpdate()
@@ -50,13 +74,7 @@ public class CarController : MonoBehaviour
 
         // Get Right Velocity (drift)
         Vector2 rightDrift = transform.right * Vector2.Dot(rb.velocity, transform.right);
-        _arrowSpeedometr.transform.localRotation= new Quaternion()
-        {
-            z = GetMinus(rb.velocity.magnitude/10),
-            x = _arrowSpeedometr.transform.rotation.x,
-            y = _arrowSpeedometr.transform.rotation.y,
-            w = 1
-        };
+        _textSpeedometr.text = (GetMinus(rb.velocity.magnitude * 10)*-1).ToString("0") + " км/ч";
         if (rb.velocity.magnitude > maxSpeed)
         {
             rb.velocity = rb.velocity.normalized * maxSpeed;
@@ -71,8 +89,26 @@ public class CarController : MonoBehaviour
 
     void OnMove()
     {
-        movement.y = Input.GetAxis("Vertical");
-        movement.x = Input.GetAxis("Horizontal");
+        if (Application.platform == RuntimePlatform.WindowsEditor)
+        {
+            movement.y = Input.GetAxis("Vertical");
+            movement.x = Input.GetAxis("Horizontal");
+            if (fixedJoystick)
+            {
+                fixedJoystick.gameObject.SetActive(false);
+            }
+        }
+        if (fixedJoystick)
+        {
+            if (Application.platform == RuntimePlatform.Android)
+            {
+                fixedJoystick.gameObject.SetActive(true);
+                movement.y = fixedJoystick.Vertical;
+                movement.x = fixedJoystick.Horizontal;
+            }
+
+        }
+        
     }
 
     void StopLamp()
@@ -155,5 +191,35 @@ public class CarController : MonoBehaviour
     {
         money += count;
         Debug.Log($"Money: {money}");
+    }
+
+    private void OnOffLamp()
+    {
+        if (dayNight)
+        {
+            if (!dayNight.IsDay())
+            {
+                foreach (var lamp in _Lamps)
+                {
+                    lamp.SetActive(false);
+                }
+            }
+            else
+            {
+                foreach (var lamp in _Lamps)
+                {
+                    lamp.SetActive(true);
+                }
+            }
+        }
+    }
+
+    private Vector3 ClientMoveToCar(GameObject client)
+    {
+        return Vector3.Lerp(client.transform.position, transform.position, 0.01f);
+    }
+    private float DistanceClientToCar(GameObject client)
+    {
+        return Vector3.Distance(client.transform.position, transform.position);
     }
 }

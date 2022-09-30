@@ -20,8 +20,31 @@ public class Phone : MonoBehaviour
     [SerializeField] private TextMeshProUGUI _endAddressText;
     [SerializeField] private TextMeshProUGUI _distanceText;
     [SerializeField] private TextMeshProUGUI _moneyText;
+    [SerializeField] private TextMeshProUGUI _topBarTime;
+    [SerializeField] private TextMeshProUGUI _mainTime;
+    [SerializeField] private TextMeshProUGUI _minimapTime;
 
+    private DayNight dayNightTime;
     private int moneyOrder;
+
+    private void Awake()
+    {
+        if (GameObject.Find("TimeDayChange"))
+        {
+            dayNightTime = GameObject.Find("TimeDayChange").GetComponent<DayNight>();
+        }
+    }
+
+    private void Update()
+    {
+        if (dayNightTime)
+        {
+            _topBarTime.text = dayNightTime.GetTimeAtString();
+            _mainTime.text = dayNightTime.GetTimeAtString();
+            _minimapTime.text = dayNightTime.GetTimeAtString();
+        }
+        
+    }
 
     public void SearchOrder()
     {
@@ -64,9 +87,9 @@ public class Phone : MonoBehaviour
                 car.currentPointSelected.GetComponent<PointController>().HideClient();
                 car.currentPointSelected.GetComponent<PointController>().HideZone();
                 car.currentPointSelected.GetComponent<PointController>().Hide();
+                car.isClientMove = true;
                 car.currentPointSelected = car.endPointSelected;
                 car.currentPointSelected.GetComponent<PointController>().Show();
-                car.currentPointSelected.GetComponent<PointController>().HideClient();
                 Debug.Log("Start");
             }
             else if (car.currentPointSelected == car.endPointSelected)
