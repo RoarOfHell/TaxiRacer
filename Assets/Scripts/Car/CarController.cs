@@ -159,6 +159,8 @@ public class CarController : MonoBehaviour
         {
             isArrival = true;
         }
+
+        // GetComponentInParent<TurnManager>().RemovePoint(transform.position);
     }
     private void OnTriggerExit2D(Collider2D collision)
     {
@@ -232,4 +234,6 @@ public class CarController : MonoBehaviour
     {
         return money;
     }
+
+    
 }

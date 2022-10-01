@@ -115,6 +115,7 @@ public class Phone : MonoBehaviour
             car.isArrival = false;
             _phone.gameObject.SetActive(true);
             _phone.GetComponent<Animator>().Play("ShowPhone");
+            GameObject.Find("Turns").GetComponent<TurnManager>().ClearPoints();
             car.HideAllPoints();
         }
     }
@@ -139,9 +140,12 @@ public class Phone : MonoBehaviour
     IEnumerator PlayAnimationAccept()
     {
         GameObject.Find("Phone").GetComponent<Animator>().Play("PhoneHide");
+        var searchPath = GameObject.Find("RoadSearch").GetComponent<AISearchRoad>();
         _order.gameObject.SetActive(false);
         var car = GameObject.Find("Car").GetComponent<CarController>();
         car.currentPointSelected = car.startPointSelected;
+        
+        searchPath.StartSearchRoad(car.startPointSelected,car.endPointSelected);
         car.endPointSelected.GetComponent<PointController>().Hide();
         yield return new WaitForSeconds(0.15f);
         _arrival.gameObject.SetActive(true);
