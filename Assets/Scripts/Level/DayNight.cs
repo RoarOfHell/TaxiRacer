@@ -17,29 +17,29 @@ public class DayNight : MonoBehaviour
 
     private void SetTime()
     {
-        if (bIsDay)
+        int hour = (int)(((Time.time + saveTime + (_secInHour * 6)) / _secInHour) % 24);
+        if (hour >= 23 || hour <= 5)
         {
             //Set day time
-            time = Time.time + saveTime + (_secInHour * 16);
+
+            bIsDay = false;
         }
         else
         {
             //Set night time
-            time = Time.time + saveTime + (_secInHour * 8);
+
+            bIsDay = true;
         }
         bIsDay = !bIsDay;
     }
 
     private void Update()
     {
-        if (Time.time + saveTime >= time)
-        {
-            SetTime();
-        }
+        SetTime();
         //Change intensity globalLight
         if (!bIsDay)
         {
-            light.intensity = Mathf.Lerp(light.intensity, 1, 1/ (_secInHour * _speedChangeIntensity));
+            light.intensity = Mathf.Lerp(light.intensity, 1, 1 / (_secInHour * _speedChangeIntensity));
         }
         else
         {
@@ -51,7 +51,7 @@ public class DayNight : MonoBehaviour
     {
         string timeReturn = "";
         int hour = (int)(((Time.time + saveTime + (_secInHour * 6)) / _secInHour) % 24);
-        int minutes = (int)(((((Time.time + saveTime + (_secInHour * 6)) / _secInHour) % 24)- hour)*100*0.6);
+        int minutes = (int)(((((Time.time + saveTime + (_secInHour * 6)) / _secInHour) % 24) - hour) * 100 * 0.6);
         timeReturn = $"{hour.ToString("00")}:{minutes.ToString("00")}";
         return timeReturn;
     }
